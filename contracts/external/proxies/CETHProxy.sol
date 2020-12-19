@@ -9,23 +9,29 @@ import {SafeERC20} from "../../packages/oz/SafeERC20.sol";
 import {ERC20Interface} from "../../interfaces/ERC20Interface.sol";
 import {Actions} from "../../libs/Actions.sol";
 import {Controller} from "../../Controller.sol";
-import {CERC20Interface} from "../../interfaces/CERC20Interface.sol";
+import {CETHInterface} from "../../interfaces/CETHInterface.sol";
 
 /**
- * @title CERC20Proxy
+ * @title CETHProxy
  * @author Opyn Team
  * @dev Contract for wrapping cToken before minting options
  */
-contract CERC20Proxy is ReentrancyGuard {
+contract CETHProxy is ReentrancyGuard {
     using SafeERC20 for ERC20Interface;
-    using SafeERC20 for CERC20Interface;
+    using SafeERC20 for CETHInterface;
 
     Controller public controller;
     address public marginPool;
+    address public cethAddress;
 
-    constructor(address _controller, address _marginPool) public {
+    constructor(
+        address _controller,
+        address _marginPool,
+        address _cethAddress
+    ) public {
         controller = Controller(_controller);
         marginPool = _marginPool;
+        cethAddress = _cethAddress;
     }
 
     /**
@@ -34,28 +40,23 @@ contract CERC20Proxy is ReentrancyGuard {
      * @param _actions array of actions arguments
      * @param _underlying underlying asset
      * @param _cToken the cToken to mint
-     * @param _amountUnderlying the amount of underlying to supply to Compound
      */
     function operate(
         Actions.ActionArgs[] memory _actions,
         address _underlying,
-        address _cToken,
-        uint256 _amountUnderlying
-    ) external nonReentrant {
-        ERC20Interface underlying = ERC20Interface(_underlying);
-        CERC20Interface cToken = CERC20Interface(_cToken);
+        address _cToken
+    ) external payable nonReentrant {
+        require(_underlying == address(0), "CETHWrapUnwrap: ETH address other than address(0) specified");
+        require(_cToken == cethAddress, "CETHWrapUnwrap: Wrong cToken address specified for ETH");
+
+        CETHInterface cToken = CETHInterface(_cToken);
 
         // if depositing token: pull token from user
         uint256 cTokenBalance = 0;
-        if (_amountUnderlying > 0) {
-            underlying.safeTransferFrom(msg.sender, address(this), _amountUnderlying);
-            // mint cToken
-            underlying.safeIncreaseAllowance(address(_cToken), _amountUnderlying);
-
-            require(cToken.mint(_amountUnderlying) == 0, "CERC20Proxy: cToken mint failed");
-
+        if (msg.value > 0) {
+            cToken.mint{value: msg.value}();
             cTokenBalance = cToken.balanceOf(address(this));
-            cToken.safeIncreaseAllowance(marginPool, cTokenBalance);
+            cToken.safeApprove(marginPool, cTokenBalance);
         }
 
         // verify sender
@@ -66,7 +67,7 @@ contract CERC20Proxy is ReentrancyGuard {
             if (action.owner != address(0)) {
                 require(
                     (msg.sender == action.owner) || (controller.isOperator(action.owner, msg.sender)),
-                    "CERC20Proxy: msg.sender is not owner or operator "
+                    "PayableProxyController: cannot execute action "
                 );
             }
 
@@ -78,12 +79,12 @@ contract CERC20Proxy is ReentrancyGuard {
 
         controller.operate(_actions);
 
-        // unwrap and withdraw cTokens that have been added to contract
+        // unwrap and withdraw cTokens that have been added to contract via operate function
         uint256 cTokenBalanceAfter = cToken.balanceOf(address(this));
         if (cTokenBalanceAfter > 0) {
             require(cToken.redeem(cTokenBalanceAfter) == 0, "CTokenPricer: Redeem Failed");
-            uint256 underlyingBalance = underlying.balanceOf(address(this));
-            underlying.safeTransfer(msg.sender, underlyingBalance);
+            uint256 underlyingBalance = address(this).balance;
+            msg.sender.transfer(underlyingBalance);
         }
     }
 }

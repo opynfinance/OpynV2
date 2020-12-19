@@ -86,8 +86,7 @@
     "doc:uml:addressbook": "sol2uml ./contracts/AddressBook.sol -f png -o ./docs/uml/GammaAddressbook.png",
     "docify": "node docify.js",
     "ci:test:unit": "CI=true truffle test ./test/unit-tests/*.ts",
-    "ci:test:integration": "CI=true truffle test ./test/integration-tests/*.ts",
-    "ci:test:e2e": "CI=true truffle test ./test/e2e/*.ts"
+    "ci:test:integration": "CI=true truffle test ./test/integration-tests/*.ts"
   },
   "husky": {
     "hooks": {

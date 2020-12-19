@@ -7,15 +7,15 @@ workflows:
   build-test-report:
     jobs:
       - checkout_and_install
-      - lint:
-          requires:
-            - checkout_and_install
       - build:
           requires:
             - checkout_and_install
+      - lint:
+          requires:
+            - build
       - certora:
           requires:
-            - checkout_and_install
+            - build
       - size-check:
           requires:
             - build
@@ -26,6 +26,7 @@ workflows:
           requires:
             - build
       - e2e-test:
+          context: COVERALLS_REPO_TOKEN
           requires:
             - build
       - coverage:
@@ -43,7 +44,6 @@ jobs:
     working_directory: ~/gammaprotocol
     docker:
       - image: circleci/node:10.18.0
-      
     steps:
       - checkout
       - restore_cache:
@@ -118,7 +118,6 @@ jobs:
           command: |
             cd specs/whitelist
             ./runPrivilegedWhitelist.sh
-
       - run:
           name: Test MarginVault
           command: |
@@ -174,14 +173,16 @@ jobs:
     working_directory: ~/gammaprotocol
     docker:
       - image: circleci/node:10.18.0
-      - image: trufflesuite/ganache-cli:v6.10.1
-        command: "ganache-cli --fork https://mainnet.infura.io/v3/66f6b3a0e1704ef396c915fe5aa36a09 --unlock 0xbe0eb53f46cd790cd13851d5eff43d12404d33e8"
     steps:
       - restore_cache:
           key: gamma-contracts-build-{{ .Environment.CIRCLE_SHA1 }}
       - run:
-          name: Mainnet end2end test 
-          command: npm run ci:test:e2e
+          name: Set Env Variables
+          command: echo "export INFURA_KEY=${INFURA_KEY}" >> $BASH_ENV
+      - run:
+          name: Mainnet E2E Test 
+          command: |
+            ./ci/e2e.sh	
       - save_cache:
           key: gas-{{ .Environment.CIRCLE_SHA1 }}
           paths:
