@@ -914,7 +914,7 @@ contract MarginCalculator is Ownable {
         }
         (uint256 priceA, bool priceAFinalized) = oracle.getExpiryPrice(_assetA, _expiry);
         (uint256 priceB, bool priceBFinalized) = oracle.getExpiryPrice(_assetB, _expiry);
-        require(priceAFinalized && priceBFinalized, "MarginCalculator: price at expiry not finalized yet.");
+        require(priceAFinalized && priceBFinalized, "MarginCalculator: price at expiry not finalized yet");
         // amount A * price A in USD = amount B * price B in USD
         // amount B = amount A * price A / price B
         return _amount.mul(FPI.fromScaledUint(priceA, BASE)).div(FPI.fromScaledUint(priceB, BASE));
@@ -1152,11 +1152,11 @@ contract MarginCalculator is Ownable {
         pure
         returns (bool)
     {
-        // if vault is missing a long or a short, return True
-        if (!_vaultDetails.hasLong || !_vaultDetails.hasShort) return true;
-
         if (_vaultDetails.vaultType == 1)
             require(!_vaultDetails.hasLong, "MarginCalculator: naked margin vault cannot have long otoken");
+
+        // if vault is missing a long or a short, return True
+        if (!_vaultDetails.hasLong || !_vaultDetails.hasShort) return true;
 
         return
             _vault.longOtokens[0] != _vault.shortOtokens[0] &&

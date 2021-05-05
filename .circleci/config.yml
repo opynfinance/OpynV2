@@ -15,7 +15,7 @@ workflows:
             - build
       - certora:
           requires:
-            - coverage
+            - build
       - size-check:
           requires:
             - build
@@ -129,13 +129,6 @@ jobs:
             ./specs/scripts/runMarginVault.sh
 
       - run:
-          name: Test no Bankruptcy
-          command: |
-            ./specs/scripts/runNoBankruptcy.sh putOptionsPreExpiryCase1StartingWithAllCases
-            ./specs/scripts/runNoBankruptcy.sh putOptionsPreExpiryCase2StartingWithAllCases
-            ./specs/scripts/runNoBankruptcy.sh callOptionsPreExpiry
-
-      - run:
           name: Test valid balances
           command: |
             ./specs/scripts/runValidBalances.sh validBalanceTotalCollateral
@@ -151,6 +144,14 @@ jobs:
             ./specs/scripts/runValidBalances.sh OtokenInVaultIsWhitelisted
             ./specs/scripts/runValidBalances.sh onlyValidOtoken
             ./specs/scripts/runController.sh onlyOneVaultModified
+            ./specs/scripts/runCalculator.sh validDust
+
+      - run:
+          name: Test no Bankruptcy
+          command: |
+            ./specs/scripts/runNoBankruptcy.sh putOptionsPreExpiryCase1StartingWithAllCases
+            ./specs/scripts/runNoBankruptcy.sh putOptionsPreExpiryCase2StartingWithAllCases
+            ./specs/scripts/runNoBankruptcy.sh callOptionsPreExpiry
 
   size-check:
     working_directory: ~/gammaprotocol

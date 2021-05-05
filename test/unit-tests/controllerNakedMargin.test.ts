@@ -393,14 +393,15 @@ contract('Controller: naked margin', ([owner, accountOwner1, liquidator]) => {
       // advance time
       await time.increase(1500)
 
-      console.log('now: ', (await time.latest()).toString())
-
       // set round id and price
       const roundId = new BigNumber(1)
       const roundPrice = 130
       const scaledRoundPrice = createTokenAmount(roundPrice)
       const auctionStartingTime = (await time.latest()).toString()
       await oracle.setChainlinkRoundData(weth.address, roundId, scaledRoundPrice, auctionStartingTime)
+
+      // advance time
+      await time.increase(1500)
 
       const isLiquidatable = await controllerProxy.isLiquidatable(accountOwner1, vaultCounter.toString(), roundId)
 
@@ -428,25 +429,26 @@ contract('Controller: naked margin', ([owner, accountOwner1, liquidator]) => {
       const liquidatorCollateralBalanceAfter = new BigNumber(await usdc.balanceOf(liquidator))
       const vaultAfterLiquidation = (await controllerProxy.getVault(accountOwner1, vaultCounter.toString()))[0]
 
-      console.log(
-        'vault collateral before liq: ',
-        new BigNumber(vaultBeforeLiquidation.collateralAmounts[0]).toString(),
-      )
-      console.log('vault collateral after liq: ', vaultAfterLiquidation.collateralAmounts[0].toString())
-      console.log('liquidation price: ', isLiquidatable[1].toString())
+      console.log('vvv aaa lll: ', vaultAfterLiquidation.collateralAmounts[0].toString())
+      console.log('vvv bbb lll: ', new BigNumber(vaultBeforeLiquidation.collateralAmounts[0]).toString())
+      console.log('lll ppp: ', isLiquidatable[1].toString())
 
       assert.equal(vaultAfterLiquidation.shortAmounts[0].toString(), '0', 'Vault was not fully liquidated')
       assert.isAtMost(
         calcRelativeDiff(
           vaultAfterLiquidation.collateralAmounts[0],
           new BigNumber(vaultBeforeLiquidation.collateralAmounts[0]).minus(isLiquidatable[1]),
-        ).toNumber(),
+        )
+          .dividedBy(10 ** usdcDecimals)
+          .toNumber(),
         errorDelta,
         'Vault collateral mismatch after liquidation',
       )
-      assert.equal(
-        liquidatorCollateralBalanceAfter.toString(),
-        liquidatorCollateralBalanceBefore.plus(isLiquidatable[1].toString()).toString(),
+      assert.isAtMost(
+        calcRelativeDiff(liquidatorCollateralBalanceAfter, liquidatorCollateralBalanceBefore.plus(isLiquidatable[1]))
+          .dividedBy(10 ** usdcDecimals)
+          .toNumber(),
+        errorDelta,
         'Liquidator collateral balance mismatch after liquidation',
       )
     })
@@ -587,6 +589,9 @@ contract('Controller: naked margin', ([owner, accountOwner1, liquidator]) => {
       const auctionStartingTime = (await time.latest()).toString()
       await oracle.setChainlinkRoundData(weth.address, roundId, scaledRoundPrice, auctionStartingTime)
 
+      // advance time
+      await time.increase(600)
+
       const isLiquidatable = await controllerProxy.isLiquidatable(accountOwner1, vaultCounter.toString(), roundId)
 
       assert.equal(isLiquidatable[0], true, 'Vault liquidation state mismatch')
@@ -618,13 +623,17 @@ contract('Controller: naked margin', ([owner, accountOwner1, liquidator]) => {
         calcRelativeDiff(
           vaultAfterLiquidation.collateralAmounts[0],
           new BigNumber(vaultBeforeLiquidation.collateralAmounts[0]).minus(isLiquidatable[1]),
-        ).toNumber(),
+        )
+          .dividedBy(10 ** wethDecimals)
+          .toNumber(),
         errorDelta,
         'Vault collateral mismatch after liquidation',
       )
-      assert.equal(
-        liquidatorCollateralBalanceAfter.toString(),
-        liquidatorCollateralBalanceBefore.plus(isLiquidatable[1].toString()).toString(),
+      assert.isAtMost(
+        calcRelativeDiff(liquidatorCollateralBalanceAfter, liquidatorCollateralBalanceBefore.plus(isLiquidatable[1]))
+          .dividedBy(10 ** usdcDecimals)
+          .toNumber(),
+        errorDelta,
         'Liquidator collateral balance mismatch after liquidation',
       )
     })
@@ -767,6 +776,9 @@ contract('Controller: naked margin', ([owner, accountOwner1, liquidator]) => {
       const auctionStartingTime = (await time.latest()).toString()
       await oracle.setChainlinkRoundData(weth.address, roundId, scaledRoundPrice, auctionStartingTime)
 
+      // advance time
+      await time.increase(600)
+
       const isLiquidatable = await controllerProxy.isLiquidatable(accountOwner1, vaultCounter.toString(), roundId)
 
       assert.equal(isLiquidatable[0], true, 'Vault liquidation state mismatch')
@@ -802,13 +814,17 @@ contract('Controller: naked margin', ([owner, accountOwner1, liquidator]) => {
         calcRelativeDiff(
           vaultAfterLiquidation.collateralAmounts[0],
           new BigNumber(vaultBeforeLiquidation.collateralAmounts[0]).minus(isLiquidatable[1]),
-        ).toNumber(),
+        )
+          .dividedBy(10 ** usdcDecimals)
+          .toNumber(),
         errorDelta,
         'Vault collateral mismatch after liquidation',
       )
-      assert.equal(
-        liquidatorCollateralBalanceAfter.toString(),
-        liquidatorCollateralBalanceBefore.plus(isLiquidatable[1]).toString(),
+      assert.isAtMost(
+        calcRelativeDiff(liquidatorCollateralBalanceAfter, liquidatorCollateralBalanceBefore.plus(isLiquidatable[1]))
+          .dividedBy(10 ** usdcDecimals)
+          .toNumber(),
+        errorDelta,
         'Liquidator collateral balance mismatch after liquidation',
       )
     })

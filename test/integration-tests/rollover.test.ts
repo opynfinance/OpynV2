@@ -70,8 +70,6 @@ contract('Rollover Naked Put Option flow', ([accountOwner1, accountOperator1, bu
   const usdcDecimals = 6
   const wethDecimals = 18
 
-  const openVaultBytes = web3.eth.abi.encodeParameter('uint256', 0)
-
   before('set up contracts', async () => {
     let now = (await time.latest()).toNumber()
     expiry1 = createValidExpiry(now, 30)
@@ -212,7 +210,7 @@ contract('Rollover Naked Put Option flow', ([accountOwner1, accountOperator1, bu
           vaultId: vaultCounter,
           amount: '0',
           index: '0',
-          data: openVaultBytes,
+          data: ZERO_ADDR,
         },
         {
           actionType: ActionType.MintShortOption,
@@ -428,7 +426,7 @@ contract('Rollover Naked Put Option flow', ([accountOwner1, accountOperator1, bu
             vaultId: vaultCounter,
             amount: '0',
             index: '0',
-            data: openVaultBytes,
+            data: ZERO_ADDR,
           },
           {
             actionType: ActionType.MintShortOption,

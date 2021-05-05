@@ -2258,7 +2258,7 @@ contract(
             ]
             await expectRevert(
               controllerProxy.operate(actionArgs, {from: accountOwner2}),
-              'Controller: invalid final vault state.',
+              'Controller: invalid final vault state',
             )
           })
 
@@ -2289,7 +2289,7 @@ contract(
 
             await expectRevert(
               controllerProxy.operate(actionArgs, {from: accountOwner2}),
-              'Controller: invalid final vault state.',
+              'Controller: invalid final vault state',
             )
           })
         })
@@ -3723,7 +3723,7 @@ contract(
 
           await expectRevert(
             controllerProxy.operate(actionArgs, {from: accountOwner1}),
-            'Controller: invalid final vault state.',
+            'Controller: invalid final vault state',
           )
         })
 

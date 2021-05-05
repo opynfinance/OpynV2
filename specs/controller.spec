@@ -206,6 +206,12 @@ rule cannotLockSystem (address oToken, address to, address collateral, uint256 a
 
 }
 
+// rule vaultLatestUpdatedTime (method f) {
+//     env e; 
+//     calldataarg args;
+//     f(e, args); 
+// }
+
 // rule inverse (address owner, uint256 vaultId, address from, uint256 index, uint256 amount) { 
 //     require(isValidVault(owner, vaultId));
 

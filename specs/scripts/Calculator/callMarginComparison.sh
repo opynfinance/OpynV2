@@ -1,0 +1,1 @@
+exec specs/scripts/runCalculator.sh callMarginComparison 

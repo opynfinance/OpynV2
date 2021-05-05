@@ -13,15 +13,15 @@ contract ControllerHarness is Controller {
     We also need to make it virtual:
     sed 's/function _runActions\(Actions.ActionArgs[] memory _actions\)/function _runActions\(Actions.ActionArgs[] memory _actions\) virtual/g'
    */
-  function _runActions(Actions.ActionArgs[] memory _actions)
-    internal
-    override
-    returns (
-      bool,
-      address,
-      uint256
-    )
-  {}
+  // function _runActions(Actions.ActionArgs[] memory _actions)
+  //   internal
+  //   override
+  //   returns (
+  //     bool,
+  //     address,
+  //     uint256
+  //   )
+  // {}
 
   /* will be added by harness script */
   /*

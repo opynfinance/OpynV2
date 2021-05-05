@@ -70,8 +70,6 @@ contract('Long Put Spread Option closed before expiry flow', ([accountOwner1, bu
   const usdcDecimals = 6
   const wethDecimals = 18
 
-  const openVaultBytes = web3.eth.abi.encodeParameter('uint256', 0)
-
   before('set up contracts', async () => {
     const now = (await time.latest()).toNumber()
     expiry = createValidExpiry(now, 30)
@@ -188,7 +186,7 @@ contract('Long Put Spread Option closed before expiry flow', ([accountOwner1, bu
           vaultId: vaultCounter2,
           amount: '0',
           index: '0',
-          data: openVaultBytes,
+          data: ZERO_ADDR,
         },
         {
           actionType: ActionType.MintShortOption,
@@ -261,7 +259,7 @@ contract('Long Put Spread Option closed before expiry flow', ([accountOwner1, bu
           vaultId: vaultCounter1,
           amount: '0',
           index: '0',
-          data: openVaultBytes,
+          data: ZERO_ADDR,
         },
         {
           actionType: ActionType.MintShortOption,
