@@ -1,0 +1,1 @@
+certoraRun specs/harness/MarginCalculatorHarness.sol:MarginCalculatorHarness --solc solc --verify MarginCalculatorHarness:specs/calculator.spec  --settings  -assumeUnwindCond,-optimisticReturnsize=true,-ciMode=true,-t=300,-rule=$1 --cache OpynController --staging

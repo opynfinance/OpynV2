@@ -79,9 +79,10 @@ contract ControllerHarness is Controller {
   function isValidVault(address owner, uint256 vaultId) external view returns (bool) {
     MarginVault.Vault storage _vault = cheapGetVault(owner, vaultId);
     (, bool isValidVault) = calculator.getExcessCollateral(
+      _vault, /*
       _vault.shortAmounts[0],
       _vault.longAmounts[0],
-      _vault.collateralAmounts[0],
+      _vault.collateralAmounts[0],*/
       vaultType[owner][vaultId]
     );
     return isValidVault;

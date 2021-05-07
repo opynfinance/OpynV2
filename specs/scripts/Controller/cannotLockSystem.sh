@@ -1,0 +1,1 @@
+exec specs/scripts/runController.sh cannotLockSystem

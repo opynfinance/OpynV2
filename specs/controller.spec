@@ -11,6 +11,7 @@ methods {
     // ERC20 functions
     collateralToken.totalSupply() returns uint256 envfree
     shortOtoken.totalSupply() returns uint256 envfree
+    shortOtoken.strikePrice() returns uint256 envfree
     collateralToken.balanceOf(address) returns uint256 envfree
     longOtoken.balanceOf(address) returns uint256 envfree
     shortOtoken.balanceOf(address) returns uint256 envfree
@@ -151,7 +152,59 @@ rule optionWithdrawsRestricted(address owner, uint256 vaultId, uint256 index, ad
                                                     || (f.selector == settleVault(address,uint256,address).selector);
 }
 
+rule withdrawCollateralAndSettleVaultMatch (address owner, uint256 vaultId, uint256 index, address oToken, address to, address collateral, uint256 amount) {
+    // if I withdraw collateral, it should <= the amount of collateral I can get by calling settle valut 
+    env e;
+    require oToken == shortOtoken;
+    require collateral == collateralToken;
+    require getVaultShortOtoken(owner, vaultId, 0) == oToken;
+    require getVaultCollateralAsset(owner, vaultId, 0) == collateral;
+    require to != pool; 
 
+    uint256 poolBalanceBefore = collateralToken.balanceOf(pool);
+
+    storage initialStorage = lastStorage;
+    sinvoke settleVault(e, owner, vaultId, to);
+    uint256 poolBalanceAfterSettle = collateralToken.balanceOf(pool);
+
+    sinvoke withdrawCollateral(e, owner, vaultId, to, index, amount) at initialStorage;
+    require(isValidVault(owner, vaultId));
+    uint256 poolBalanceAfterWithdraw = collateralToken.balanceOf(pool);
+
+    assert poolBalanceAfterWithdraw != poolBalanceBefore => (poolBalanceAfterWithdraw >= poolBalanceAfterSettle);
+
+}
+
+definition MAX_SUPPLY() returns uint256 = 100000000000000000;
+/***
+@title Checks that a weak user cannot lock the system by minting  max supply of the otoken. 
+@notice Checks this holds true if a user has limited supply of collateral and is not close to max supply on an otoken
+*/
+rule cannotLockSystem (address oToken, address to, address collateral, uint256 amount, address owner, uint256 vaultId, uint256 index) {
+    env e;
+    require oToken == shortOtoken;
+    uint256 strikePrice = shortOtoken.strikePrice();
+    // TODO: figure out how to fix this. 
+    require strikePrice >= 100000000;
+    require collateral == collateralToken;
+
+    require to != pool; 
+
+    uint256 supplyBefore = shortOtoken.totalSupply();
+    // get excess collateral in vault 
+    uint256 collateralBefore = getVaultCollateralAmount(owner, vaultId, index);
+
+    require supplyBefore < MAX_SUPPLY();
+    require collateralBefore < MAX_SUPPLY();
+
+    mintOtokenA(e, owner, vaultId, to, index, amount);
+    require(isValidVault(owner, vaultId));
+
+
+    uint256 supplyAfter = shortOtoken.totalSupply();
+    assert supplyAfter < 2 * MAX_SUPPLY(); 
+
+}
 
 // rule inverse (address owner, uint256 vaultId, address from, uint256 index, uint256 amount) { 
 //     require(isValidVault(owner, vaultId));
