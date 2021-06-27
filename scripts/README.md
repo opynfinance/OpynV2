@@ -23,7 +23,7 @@ To deploy a new `ChainlinkPricer.sol`, it is recommended to use the `deployChain
 
 **Input**
 ```sh
-truffle exec scripts/deployChainlinkPricer.js --network mainnet --controller 0x7d78c401c69c56cb21f4bf80c53afd92be0BBBBB --pool 0xc02aaa39b223fe8d0a0e5c4f27ead9083c7AAaaa --weth 0x5f4eC3Df9cbd43714FE2740f5E3616155cAGAGAG --oracle 0xef196aA0e3Cb8EA6d5720557C3B611Eff6OOOOOO --gasPrice 50000000000
+truffle exec scripts/deployChainlinkPricer.js --network mainnet --bot 0x7d78c401c69c56cb21f4bf80c53afd92be0BBBBB --asset 0xc02aaa39b223fe8d0a0e5c4f27ead9083c7AAaaa --aggregator 0x5f4eC3Df9cbd43714FE2740f5E3616155cAGAGAG --oracle 0xef196aA0e3Cb8EA6d5720557C3B611Eff6OOOOOO --gasPrice 50000000000
 ```
 
 **Output**

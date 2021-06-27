@@ -232,7 +232,7 @@ use donate() instead of direct transfer() to store the balance in assetBalance
 
 allows the partialPauser to toggle the systemPartiallyPaused variable and partially pause or partially unpause the system
 
-can only be called by the pauser
+can only be called by the partialPauser
 
 #### Parameters:
 
@@ -242,7 +242,7 @@ can only be called by the pauser
 
 allows the fullPauser to toggle the systemFullyPaused variable and fully pause or fully unpause the system
 
-can only be called by the pauser
+can only be called by the fullyPauser
 
 #### Parameters:
 
