@@ -28,7 +28,7 @@ contract MarginCalculator is Ownable {
     uint256 internal constant BASE = 8;
 
     /// @notice auction length
-    uint256 public constant AUCTION_TIME = 3600;
+    uint256 public constant AUCTION_TIME = 5400;
 
     /// @dev struct to store all needed vault details
     struct VaultDetails {
