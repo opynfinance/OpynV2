@@ -60,7 +60,7 @@ module.exports = {
       confirmations: 2,
       timeoutBlocks: 50,
       skipDryRun: false,
-      gasPrice: 100000000000,
+      gasPrice: 25000000000,
     },
   },
 
